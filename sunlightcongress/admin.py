@@ -23,6 +23,37 @@ class LegislatorAdmin(admin.ModelAdmin):
         'middlename',
         'lastname',
     )
+    readonly_fields = (
+        'title',
+        'firstname',
+        'middlename',
+        'lastname',
+        'name_suffix',
+        'nickname',
+        'party',
+        'state',
+        'district',
+        'in_office',
+        'gender',
+        'phone',
+        'fax',
+        'website',
+        'webform',
+        'email',
+        'congress_office',
+        'bioguide_id',
+        'votesmart_id',
+        'fec_id',
+        'govtrack_id',
+        'crp_id',
+        'congresspedia_url',
+        'twitter_id',
+        'youtube_url',
+        'facebook_id',
+        'senate_class',
+        'official_rss',
+        'birthdate',
+    )
 
 admin.site.register(Legislator, LegislatorAdmin)
 
@@ -32,5 +63,12 @@ class CommitteeAdmin(admin.ModelAdmin):
     ModelAdmin object for the Committee model
     """
     filter_horizontal = ('members',)
+    readonly_fields = (
+        'id',
+        'chamber',
+        'name',
+        'parent',
+        'members',
+    )
 
 admin.site.register(Committee, CommitteeAdmin)
