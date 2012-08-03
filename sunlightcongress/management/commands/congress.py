@@ -50,7 +50,8 @@ class Command(BaseCommand):
         """
         args = list(args)
 
-        options['silent'] = int(options['verbosity']) > 1
+        options['silent'] = int(options['verbosity']) < 1
+        options['verbose'] = int(options['verbosity']) > 2
 
         # If no subcommand is specified, assume 'help'
         try:
@@ -92,10 +93,5 @@ class Command(BaseCommand):
         Downloads legislator and committee data from the Sunlight Congress API.
         Intended to be used as a scheduled job.
         """
-        if not options['silent']:
-            self._write_clean(self.stdout, _('Fetching legislators'))
-        Legislator.objects.fetch()
-
-        if not options['silent']:
-            self._write_clean(self.stdout, _('Fetching committees'))
-        Committee.objects.fetch()
+        Legislator.objects.fetch(verbose=options['verbose'], log=self.stdout)
+        Committee.objects.fetch(verbose=options['verbose'], log=self.stdout)

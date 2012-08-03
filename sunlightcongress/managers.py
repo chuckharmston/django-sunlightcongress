@@ -17,7 +17,7 @@ class LegislatorManager(models.Manager):
         serving the passed coordinates
     """
 
-    def fetch(self):
+    def fetch(self, verbose=False, log=False):
         """
         Compares and updates all Legislator objects against the data contained
         within the Sunlight Foundation's Congress API.
@@ -25,6 +25,9 @@ class LegislatorManager(models.Manager):
         The entire operation is enclosed in a transaction that is only
         committed if no exceptions are raised.
         """
+        if verbose and log:
+            log.write('Fetching Legislators\n')
+
         with transaction.commit_manually():
             try:
                 for legislator in congress.legislators():
@@ -34,6 +37,8 @@ class LegislatorManager(models.Manager):
                     for name, value in legislator.iteritems():
                         setattr(legislator_obj, name, value)
                     legislator_obj.save()
+                    if verbose and log:
+                        log.write('- %s\n' % legislator_obj.fullname)
             except Exception as e:
                 transaction.rollback()
                 raise e
@@ -78,7 +83,7 @@ class CommitteeManager(models.Manager):
         subcommittees and memberships to committees.
     """
 
-    def fetch(self):
+    def fetch(self, verbose=False, log=None):
         """
         Compares and updates all Committee objects against the data contained
         within the Sunlight Foundation's Congress API, including subcommittees
@@ -95,6 +100,9 @@ class CommitteeManager(models.Manager):
         """
         for chamber in CHAMBER_CHOICES:
 
+            if verbose and log:
+                log.write('Fetching %s Committees\n' % chamber[0])
+
             # Get or create a Committee object for each congressional committee
             for committee in congress.committees(chamber[0]):
 
@@ -105,6 +113,9 @@ class CommitteeManager(models.Manager):
                     for name, value in committee.iteritems():
                         setattr(committee_obj, name, value)
                     committee_obj.save()
+
+                    if verbose and log:
+                        log.write('- %s' % committee_obj.name)
 
                     # Create object for each subcommittee of the committee
                     if 'subcommittees' in committee:
@@ -118,11 +129,20 @@ class CommitteeManager(models.Manager):
                             subcommittee_obj.parent = committee_obj
                             subcommittee_obj.save()
 
+                            if verbose and log:
+                                log.write('  - %s\n' % subcommittee_obj.name)
+
+        if verbose and log:
+            log.write('\nClearing committee memberships\n')
+
         # Clear all committee memberships
         with transaction.commit_on_success():
             for committee in self.all():
                 committee.members.clear()
                 committee.save()
+
+        if verbose and log:
+            log.write('\nCreating committee memberships\n')
 
         # Iterate over each legislator, fetching and creating all memberships
         Legislator = self.model._meta.get_field_by_name('members')[0].rel.to
@@ -133,3 +153,9 @@ class CommitteeManager(models.Manager):
                     committee_obj = self.get(id=committee['id'])
                     committee_obj.members.add(legislator)
                     committee_obj.save()
+
+                    if verbose and log:
+                        log.write('- %s is on the %s\n' % (
+                            legislator.fullname,
+                            committee_obj.name,
+                        ))
