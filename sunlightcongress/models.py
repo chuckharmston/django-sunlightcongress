@@ -172,6 +172,13 @@ class Legislator(models.Model):
 
     objects = LegislatorManager()
 
+    def committees(self):
+        """
+        Convenience method that returns a QuerySet of committees the
+        legislator is a member of.
+        """
+        return self.committee_set.all()
+
     @property
     def fullname(self):
         """
