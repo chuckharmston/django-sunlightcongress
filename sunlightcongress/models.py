@@ -168,7 +168,7 @@ class Legislator(models.Model):
     class Meta:
         ordering = ['lastname', 'firstname']
         verbose_name = 'Legislator'
-        verbose_name_plural = 'Legislatorsf'
+        verbose_name_plural = 'Legislators'
 
     objects = LegislatorManager()
 
