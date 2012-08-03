@@ -1,5 +1,5 @@
 from django.contrib import admin
-from sunlightcongress.models import Legislator
+from sunlightcongress.models import Committee, Legislator
 
 
 class LegislatorAdmin(admin.ModelAdmin):
@@ -25,3 +25,12 @@ class LegislatorAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(Legislator, LegislatorAdmin)
+
+
+class CommitteeAdmin(admin.ModelAdmin):
+    """
+    ModelAdmin object for the Committee model
+    """
+    filter_horizontal = ('members',)
+
+admin.site.register(Committee, CommitteeAdmin)
