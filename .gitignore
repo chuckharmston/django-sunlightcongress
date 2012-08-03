@@ -1,0 +1,8 @@
+*.pyc
+*.DS_Store
+.Python
+*.db
+*.egg-info
+pip-*.txt
+*.log
+dist
